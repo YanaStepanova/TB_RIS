@@ -1,20 +1,67 @@
-﻿// lab2.cpp : Этот файл содержит функцию "main". Здесь начинается и заканчивается выполнение программы.
-//
+﻿#include <iostream>
+#include <chrono>
+#include <omp.h>
 
-#include <iostream>
+const int size = 500;
+int matrix1[size][size] = { 0 };
+int matrix2[size][size] = { 0 };
+int matrix_result[size][size] = { 0 };
 
+void sequential_matrix_multiplication()
+{
+	for (int i = 0;i < size;i++)
+	{
+		for (int j = 0; j < size; j++)
+		{
+			matrix1[i][j] = rand() % 10;
+			matrix2[i][j] = rand() % 10;
+		}
+	}
+	//ijk
+	auto start = std::chrono::high_resolution_clock::now();
+	for (int i = 0; i < size; i++) {
+		for (int j = 0; j < size; j++) {
+			for (int k = 0; k < size; k++) {
+				matrix_result[i][j] += matrix1[i][k] * matrix2[k][j];
+			}
+		}
+	}
+	auto end = std::chrono::high_resolution_clock::now();
+	auto mcsec = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+	std::cout << "ijk: " << mcsec.count() << " microseconds\n";
+
+	for (int i = 0;i < size;i++)
+	{
+		for (int j = 0; j < size; j++)
+		{
+			matrix_result[i][j] = 0;
+		}
+	}
+
+	//kij
+	auto start1 = std::chrono::high_resolution_clock::now();
+	for (int k = 0; k < size; k++) {
+		for (int i = 0; i < size; i++) {
+			for (int j = 0; j < size; j++) {
+				matrix_result[i][j] += matrix1[i][k] * matrix2[k][j];
+			}
+		}
+	}
+	auto end1 = std::chrono::high_resolution_clock::now();
+	auto mcsec1 = std::chrono::duration_cast<std::chrono::microseconds>(end1 - start1);
+	std::cout << "kij(optimal): " << mcsec1.count() << " microseconds\n";
+
+
+	for (int i = 0;i < size;i++)
+	{
+		for (int j = 0; j < size; j++)
+		{
+			matrix_result[i][j] = 0;
+		}
+	}
+}
 int main()
 {
-    std::cout << "Hello World!\n";
+	sequential_matrix_multiplication();
+	return 0;
 }
-
-// Запуск программы: CTRL+F5 или меню "Отладка" > "Запуск без отладки"
-// Отладка программы: F5 или меню "Отладка" > "Запустить отладку"
-
-// Советы по началу работы 
-//   1. В окне обозревателя решений можно добавлять файлы и управлять ими.
-//   2. В окне Team Explorer можно подключиться к системе управления версиями.
-//   3. В окне "Выходные данные" можно просматривать выходные данные сборки и другие сообщения.
-//   4. В окне "Список ошибок" можно просматривать ошибки.
-//   5. Последовательно выберите пункты меню "Проект" > "Добавить новый элемент", чтобы создать файлы кода, или "Проект" > "Добавить существующий элемент", чтобы добавить в проект существующие файлы кода.
-//   6. Чтобы снова открыть этот проект позже, выберите пункты меню "Файл" > "Открыть" > "Проект" и выберите SLN-файл.
