@@ -60,8 +60,50 @@ void sequential_matrix_multiplication()
 		}
 	}
 }
+
+void openMP_matrix_multiplication()
+{
+
+	for (int i = 0;i < size;i++)
+	{
+		for (int j = 0; j < size; j++)
+		{
+			matrix1[i][j] = rand() % 10;
+			matrix2[i][j] = rand() % 10;
+		}
+	}
+
+	auto start = std::chrono::high_resolution_clock::now();
+
+	int i, j, k;
+
+#pragma omp parallel for shared(matrix1,matrix2,matrix_result) private(i, j, k)
+	for (int i = 0; i < size; i++) {
+		for (int j = 0; j < size; j++) {
+			for (int k = 0; k < size; k++) {
+				matrix_result[i][j] += matrix1[i][k] * matrix2[k][j];
+			}
+		}
+	}
+
+	auto end = std::chrono::high_resolution_clock::now();
+	auto mcsec = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+	std::cout << "openMP: " << mcsec.count() << " microseconds\n";
+
+
+	for (int i = 0;i < size;i++)
+	{
+		for (int j = 0; j < size; j++)
+		{
+			matrix_result[i][j] = 0;
+		}
+	}
+}
+
+
 int main()
 {
 	sequential_matrix_multiplication();
+	openMP_matrix_multiplication();
 	return 0;
 }
